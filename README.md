@@ -4,4 +4,4 @@
 создание справочника, добавление записей, редактирование записей, поиск по имени, фамилии или названию организации
 
 При запуске программы появляется меню:
-![Alt text](/relative/img/menu.png?raw=true "Optional Title")
+![Alt text](/img/menu.png?raw=true "Optional Title")
