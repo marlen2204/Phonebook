@@ -14,7 +14,6 @@ def load_data(filename: str) -> dict:
         queries = json.load(f)
     return queries
 
-
 file = load_data('queries.json')
 
 
