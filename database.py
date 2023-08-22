@@ -3,42 +3,41 @@ import sqlite3
 import json
 
 
-def load_data(filename: str) -> dict:
+def load_queries(filename: str) -> dict:
     """
     This is a function for reading sql queries
     :param filename:
     :return queries:
-
     """
+
     with open(filename, 'r', encoding='utf-8') as f:
         queries = json.load(f)
     return queries
 
-file = load_data('queries.json')
 
-
-def create_db(dbname: str) -> None:
+def create_db(dbname: str, file: dict) -> None:
     """
-    This is the database creation function
+    This function creates a database
     :param dbname:
-    :param filename:
-    :return None:
-
+    :param file:
+    :return:
     """
+
     conn = sqlite3.connect(dbname)
     cur = conn.cursor()
     cur.execute(file["create"])
     conn.commit()
 
 
-def add_item(new_item: dict, dbname: str) -> None:
+def add_contact(new_item: dict, dbname: str, file: dict) -> None:
     """
-    This is the function of adding a new entry to the phone book
+    This function adds a new contact to the database.
+    There is also a restriction on the uniqueness of the first name,
+    last name and patronymic together.
     :param new_item:
     :param dbname:
-    :param filename:
-    :return None:
-
+    :param file:
+    :return:
     """
 
     conn = sqlite3.connect(dbname)
@@ -51,21 +50,50 @@ def add_item(new_item: dict, dbname: str) -> None:
     conn.close()
 
 
-def edit_record(last_name, first_name, patronymic,
-                organization, work_phone, personal_phone, dbname):
+def edit_contact(old_last_name: str, old_first_name: str,
+                 old_patronymic: str, last_name: str, first_name: str,
+                 patronymic: str, organization: str, work_phone: str,
+                 personal_phone: str, dbname: str, file: dict) -> None:
+    """
+    This function changes the contact in the database
+    :param old_last_name:
+    :param old_first_name:
+    :param old_patronymic:
+    :param last_name:
+    :param first_name:
+    :param patronymic:
+    :param organization:
+    :param work_phone:
+    :param personal_phone:
+    :param dbname:
+    :param file:
+    :return:
+    """
+
     conn = sqlite3.connect(dbname)
     cursor = conn.cursor()
 
     cursor.execute(file["edit_record"],
                    (last_name, first_name, patronymic, organization,
-                    work_phone, personal_phone, last_name, first_name,
-                    patronymic))
+                    work_phone, personal_phone, old_last_name, old_first_name,
+                    old_patronymic))
 
     conn.commit()
     conn.close()
 
 
-def display_records(page_num, page_size, dbname):
+def display_contacts(file: dict, page_num: int = 1,
+                     page_size: int = 5, dbname: str = None) -> None:
+    """
+    This function displays contacts with a given number of entries
+    and a page, by default it is the first page with five contacts
+    :param file:
+    :param page_num:
+    :param page_size:
+    :param dbname:
+    :return:
+    """
+
     conn = sqlite3.connect(dbname)
     cursor = conn.cursor()
     offset = (page_num - 1) * page_size
@@ -73,9 +101,47 @@ def display_records(page_num, page_size, dbname):
 
     records = cursor.fetchall()
     for record in records:
-        print(record)
-
+        print(*record)
     conn.close()
 
 
-display_records(1, 3, 'phonebook.db')
+def search_contact(file: dict, data: list, dbname: str = None) -> None:
+    """
+    This function finds contacts with the given last name,
+    first name, or company name
+    :param file:
+    :param data:
+    :param dbname:
+    :return:
+    """
+
+    conn = sqlite3.connect(dbname)
+    cursor = conn.cursor()
+
+    if not any(data):
+        print("Please provide at least one search parameter")
+        return
+
+    query = file['search']
+    values = []
+    if data[0]:
+        query += ' last_name = ? AND'
+        values.append(data[0])
+    if data[1]:
+        query += ' first_name = ? AND'
+        values.append(data[1])
+    if data[2]:
+        query += ' organization = ? AND'
+        values.append(data[2])
+
+    query = query.rstrip(' AND')
+    cursor.execute(query, tuple(values))
+    records = cursor.fetchall()
+    if records:
+        print('Найденные записи:')
+        for record in records:
+            print(*record)
+    else:
+        print('Записи не найдены')
+
+    conn.close()

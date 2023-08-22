@@ -2,4 +2,6 @@
   "create": "CREATE TABLE IF NOT EXISTS phonebook ( id INTEGER PRIMARY KEY AUTOINCREMENT, last_name TEXT NOT NULL, first_name TEXT NOT NULL,patronymic TEXT,organization TEXT,work_phone TEXT,personal_phone TEXT, CONSTRAINT uniq_fio UNIQUE (first_name, last_name, patronymic))",
   "add_item": "INSERT INTO phonebook (last_name, first_name, patronymic, organization, work_phone, personal_phone) VALUES (?, ?, ?, ?, ?, ?)",
   "display_records": "SELECT * FROM phonebook ORDER BY last_name, first_name LIMIT ? OFFSET ?",
-  "edit_record": "UPDATE phonebook SET last_name = ?, first_name = ?, patronymic = ?, organization = ?, work_phone = ?, personal_phone = ?  WHERE last_name = ? AND first_name = ? AND patronymic = ?"}
+  "edit_record": "UPDATE phonebook SET last_name = ?, first_name = ?, patronymic = ?, organization = ?, work_phone = ?, personal_phone = ?  WHERE last_name = ? AND first_name = ? AND patronymic = ?",
+  "search":  "SELECT * FROM phonebook WHERE"
+}
