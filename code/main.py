@@ -68,4 +68,4 @@ def main(filename, dbname):
 
 
 if __name__ == '__main__':
-    main(filename='queries.json', dbname='phonebook.db')
+    main(filename='code/queries.json', dbname='phonebook.db')

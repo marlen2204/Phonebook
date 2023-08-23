@@ -42,7 +42,7 @@ def add_contact(new_item: dict, dbname: str, file: dict) -> None:
 
     conn = sqlite3.connect(dbname)
     cursor = conn.cursor()
-    cursor.execute(file['add_item'], (
+    cursor.execute(file['add_contact'], (
         new_item['last_name'], new_item['first_name'], new_item['patronymic'],
         new_item['organization'],
         new_item['work_phone'], new_item['personal_phone']))
@@ -73,7 +73,7 @@ def edit_contact(old_last_name: str, old_first_name: str,
     conn = sqlite3.connect(dbname)
     cursor = conn.cursor()
 
-    cursor.execute(file["edit_record"],
+    cursor.execute(file['edit_contact'],
                    (last_name, first_name, patronymic, organization,
                     work_phone, personal_phone, old_last_name, old_first_name,
                     old_patronymic))
@@ -97,12 +97,15 @@ def display_contacts(file: dict, page_num: int = 1,
     conn = sqlite3.connect(dbname)
     cursor = conn.cursor()
     offset = (page_num - 1) * page_size
-    cursor.execute(file["display_records"], (page_size, offset))
+    cursor.execute(file['display_contact'], (page_size, offset))
 
     records = cursor.fetchall()
-    for record in records:
-        print(*record)
-    conn.close()
+    if records:
+        for record in records:
+            print(*record)
+        conn.close()
+    else:
+        print('Телефонный справочник пуст')
 
 
 def search_contact(file: dict, data: list, dbname: str = None) -> None:
@@ -119,7 +122,7 @@ def search_contact(file: dict, data: list, dbname: str = None) -> None:
     cursor = conn.cursor()
 
     if not any(data):
-        print("Please provide at least one search parameter")
+        print('Введите хотя бы 1 параметр для поиска')
         return
 
     query = file['search']
@@ -144,4 +147,14 @@ def search_contact(file: dict, data: list, dbname: str = None) -> None:
     else:
         print('Записи не найдены')
 
+    conn.close()
+
+
+def drop_contact(last_name: str, first_name: str,
+                 patronymic: str, dbname: str, file: dict) -> None:
+    conn = sqlite3.connect(dbname)
+    cursor = conn.cursor()
+    cursor.execute(file['delete_contact'], (last_name, first_name, patronymic))
+
+    conn.commit()
     conn.close()
