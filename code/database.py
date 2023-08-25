@@ -2,7 +2,7 @@
 import sqlite3
 from func import load_queries
 
-phrases = load_queries('code/phrases.json')
+phrases = load_queries('data/phrases.json')
 
 
 def create_db(dbname: str, file: dict) -> None:
