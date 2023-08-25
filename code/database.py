@@ -1,18 +1,8 @@
-# файл для работы в базой данных
+# файл для работы в базой даннcых
 import sqlite3
-import json
+from func import load_queries
 
-
-def load_queries(filename: str) -> dict:
-    """
-    This is a function for reading sql queries
-    :param filename:
-    :return queries:
-    """
-
-    with open(filename, 'r', encoding='utf-8') as f:
-        queries = json.load(f)
-    return queries
+phrases = load_queries('code/phrases.json')
 
 
 def create_db(dbname: str, file: dict) -> None:
@@ -105,7 +95,7 @@ def display_contacts(file: dict, page_num: int = 1,
             print(*record)
         conn.close()
     else:
-        print('Телефонный справочник пуст')
+        print(phrases['errors']['empty_phonebook'])
 
 
 def search_contact(file: dict, data: list, dbname: str = None) -> None:
@@ -122,7 +112,7 @@ def search_contact(file: dict, data: list, dbname: str = None) -> None:
     cursor = conn.cursor()
 
     if not any(data):
-        print('Введите хотя бы 1 параметр для поиска')
+        print(phrases['errors']['enter_param'])
         return
 
     query = file['search']
@@ -141,17 +131,27 @@ def search_contact(file: dict, data: list, dbname: str = None) -> None:
     cursor.execute(query, tuple(values))
     records = cursor.fetchall()
     if records:
-        print('Найденные записи:')
+        print(phrases['success']['found_contacts'])
         for record in records:
             print(*record)
     else:
-        print('Записи не найдены')
+        print(phrases['errors']['contacts_not_found'])
 
     conn.close()
 
 
 def drop_contact(last_name: str, first_name: str,
                  patronymic: str, dbname: str, file: dict) -> None:
+    """
+    This function deletes a contact by the given first name,
+    last name and patronymic.
+    :param last_name:
+    :param first_name:
+    :param patronymic:
+    :param dbname:
+    :param file:
+    :return:
+    """
     conn = sqlite3.connect(dbname)
     cursor = conn.cursor()
     cursor.execute(file['delete_contact'], (last_name, first_name, patronymic))
